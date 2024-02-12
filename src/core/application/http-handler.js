@@ -6,14 +6,19 @@ import { HttpEvent } from 'core/types/http-event.type';
  * @param {function(HttpEvent)} callback
  */
 export function httpHandler(callback) {
+
   return {
-    run: (event) =>
-      withContextFromHttpEvent(() => httpController(event, callback), {
+    /**
+     * @param {HttpEvent} event
+     */
+    run(event) {
+      return withContextFromHttpEvent(() => httpController(event, callback), {
         traceId: event.requestContext.requestId,
         request: {
           method: event.requestContext.http.method,
           url: event.requestContext.http.path,
         },
-      }),
+      });
+    },
   };
 }
