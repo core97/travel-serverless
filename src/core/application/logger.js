@@ -1,5 +1,5 @@
 import pino from 'pino';
-import { appContext } from 'core/application/app-context';
+import { appContext } from './app-context';
 
 const pinoLogger = pino({
   transport: {

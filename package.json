@@ -5,7 +5,10 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
+    "deploy:cloud": "sls deploy --aws-profile juan",
+    "dev": "sls offline start --aws-profile juan",
     "prisma:update:schema": "prisma db push",
+    "remove:cloud": "sls remove",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -13,10 +16,12 @@
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^5.9.1",
-    "pino": "^8.18.0",
-    "pino-pretty": "^10.3.1"
+    "pino": "^8.18.0"
   },
   "devDependencies": {
-    "prisma": "^5.9.1"
+    "pino-pretty": "^10.3.1",
+    "prisma": "^5.9.1",
+    "serverless": "^3.38.0",
+    "serverless-offline": "^13.3.3"
   }
 }

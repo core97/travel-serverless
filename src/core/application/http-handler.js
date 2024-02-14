@@ -1,24 +1,29 @@
-import { withContextFromHttpEvent } from 'core/application/app-context';
-import { httpController } from 'core/helpers/http/http-controller.helper';
-import { HttpEvent } from 'core/types/http-event.type';
+import { withContextFromHttpEvent } from './app-context';
+import { serverlessHttpCtrl } from '../helpers/serverless.helper';
+import { HttpEvent } from '../types/http-event.type';
 
 /**
- * @param {function(HttpEvent)} callback
+ * @param {function(Request)} callback
  */
 export function httpHandler(callback) {
-
   return {
     /**
      * @param {HttpEvent} event
+     * @param {Object} context
+     * @param {Function} serverlessCallback
+     * @return {Promise<Response>}
      */
-    run(event) {
-      return withContextFromHttpEvent(() => httpController(event, callback), {
-        traceId: event.requestContext.requestId,
-        request: {
-          method: event.requestContext.http.method,
-          url: event.requestContext.http.path,
-        },
-      });
+    run(event, context, serverlessCallback) {
+      return withContextFromHttpEvent(
+        () => serverlessHttpCtrl(event, callback, serverlessCallback),
+        {
+          traceId: event.requestContext.requestId,
+          request: {
+            method: event.requestContext.http.method,
+            url: event.requestContext.http.path,
+          },
+        }
+      );
     },
   };
 }

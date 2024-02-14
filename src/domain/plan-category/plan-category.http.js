@@ -1,8 +1,11 @@
-import { createPlanCategory } from 'domain/plan-category/plan-category.service';
-import { httpHandler } from 'core/application/http-handler';
-import { httpReponse } from 'core/helpers/http/http-response.helper';
+import { createPlanCategory } from './plan-category.service';
+import { httpHandler } from '../../core/application/http-handler';
+import { httpReponse } from '../../core/helpers/http/http-response.helper';
 
 export const createPlanCategoryPost = httpHandler(async (req) => {
-  const result = await createPlanCategory(req.body);
+  const body = await req.json();
+
+  const result = await createPlanCategory(body);
+  
   return httpReponse.ok(result);
 });

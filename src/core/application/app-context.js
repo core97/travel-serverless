@@ -1,5 +1,5 @@
 import { AsyncLocalStorage } from 'async_hooks';
-import { AppContext } from 'core/types/app-context.type';
+import { AppContext } from '../types/app-context.type';
 
 /**
  * Application context used to store information in asynchronous execution

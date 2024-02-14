@@ -1,6 +1,6 @@
-import { prisma } from 'core/application/database';
-import { logger } from 'core/application/logger';
-import { toSnakeCase } from 'core/helpers/text.helper';
+import { prisma } from '../../core/application/database';
+import { logger } from '../../core/application/logger';
+import { toSnakeCase } from '../../core/helpers/text.helper';
 
 export async function createPlanCategory(params) {
   const code = toSnakeCase(params.code).toUpperCase();

@@ -1,101 +1,70 @@
-import { HttpStatus } from 'core/helpers/http/http-status.helper';
+import { HttpStatus } from './http-status.helper';
 
 export const httpReponse = {
   jsonResponse(code, message) {
     if (message) {
-      return {
-        statusCode: code,
-        headers: { 'Content-Type': 'application/json' },
-        body: typeof message === 'string' ? message : JSON.stringify(message),
-      };
+      return new Response(
+        JSON.stringify(typeof message === 'string' ? { message } : message),
+        {
+          status: code,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
-    return {
-      statusCode: code,
-      headers: { 'Content-Type': 'application/json' },
-    };
+    return new Response(null, { status: code });
   },
 
   ok(dto) {
     if (dto) {
-      return {
-        statusCode: HttpStatus.OK,
+      return new Response(JSON.stringify(dto), {
+        status: HttpStatus.OK,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(dto),
-      };
+      });
     }
 
-    return {
-      statusCode: HttpStatus.OK,
-    };
+    return new Response(null, { status: HttpStatus.OK });
   },
 
   created() {
-    return {
-      statusCode: HttpStatus.CREATED,
-    };
+    return new Response(null, { status: HttpStatus.CREATED });
   },
 
   clientError(message) {
-    return {
-      statusCode: HttpStatus.BAD_REQUEST,
-      ...(message && { body: message }),
-    };
+    return this.jsonResponse(HttpStatus.BAD_REQUEST, message);
   },
 
   unauthorized(message) {
-    return {
-      statusCode: HttpStatus.UNAUTHORIZATED,
-      ...(message && { body: message }),
-    };
+    return this.jsonResponse(HttpStatus.UNAUTHORIZATED, message);
   },
 
   forbidden(message) {
-    return {
-      statusCode: HttpStatus.FORBIDDEN,
-      ...(message && { body: message }),
-    };
+    return this.jsonResponse(HttpStatus.FORBIDDEN, message);
   },
 
   notFound(message) {
-    return {
-      statusCode: HttpStatus.NOT_FOUND,
-      ...(message && { body: message }),
-    };
+    return this.jsonResponse(HttpStatus.NOT_FOUND, message);
   },
 
   conflict(message) {
-    return {
-      statusCode: HttpStatus.CONFLICT,
-      ...(message && { body: message }),
-    };
+    return this.jsonResponse(HttpStatus.CONFLICT, message);
   },
 
   notAcceptable(message) {
-    return {
-      statusCode: HttpStatus.NOT_ACCEPTABLE,
-      ...(message && { body: message }),
-    };
+    return this.jsonResponse(HttpStatus.NOT_ACCEPTABLE, message);
   },
 
   invalidParams(message) {
-    return {
-      statusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-      ...(message && { body: message }),
-    };
+    return this.jsonResponse(HttpStatus.UNPROCESSABLE_ENTITY, message);
   },
 
   contentTooLarge(message) {
-    return {
-      statusCode: HttpStatus.CONTENT_TOO_LARGE,
-      ...(message && { body: message }),
-    };
+    return this.jsonResponse(HttpStatus.CONTENT_TOO_LARGE, message);
   },
 
-  fail(message) {
-    return {
-      statusCode: HttpStatus.INTERNAL_ERROR,
-      ...(message && { body: message }),
-    };
+  fail(error) {
+    const body = error ? JSON.stringify({ message: error?.toString() }) : null;
+
+    return new Response(body, { status: HttpStatus.INTERNAL_ERROR });
   },
 };

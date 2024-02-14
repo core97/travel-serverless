@@ -1,0 +1,34 @@
+service: travel-project
+
+package:
+  individually: true
+  exclude:
+    - "node_modules/**"
+    - "prisma/**"
+    - "package.json"
+    - "package-lock.json"
+
+provider:
+  name: aws
+  region: eu-west-1
+  runtime: nodejs18.x
+  httpApi:
+    payload: "2.0"
+    disableDefaultEndpoint: false
+  environment:
+    DATABASE_URL: ${ssm:/DATABASE_URL}
+
+plugins:
+  - serverless-offline
+
+custom:
+  serverless-offline:
+    httpPort: 3000
+
+functions:
+  planCategoryCreation:
+    handler: src/domain/plan-category/serverless/handler.createPlanCategoryFn
+    events:
+      - http:
+          path: plan-category
+          method: POST

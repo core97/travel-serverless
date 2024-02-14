@@ -1,4 +1,4 @@
-import { HttpStatus } from 'core/helpers/http/http-status.helper';
+import { HttpStatus } from './http-status.helper';
 
 export const HttpErrorCode = {
   CONFLICT: 'CONFLICT',
