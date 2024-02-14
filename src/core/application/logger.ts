@@ -1,5 +1,5 @@
-import pino from 'pino';
-import { appContext } from './app-context';
+import { pino } from 'pino';
+import { appContext } from '@/core/application/app-context';
 
 const pinoLogger = pino({
   transport: {
@@ -26,13 +26,13 @@ function addLoggerParams() {
 }
 
 export const logger = {
-  info: (msg) => {
+  info: (msg: string) => {
     pinoLogger.info(addLoggerParams(), msg);
   },
-  error(error, msg) {
+  error(error: unknown, msg: string) {
     pinoLogger.error(addLoggerParams(), msg, error);
   },
-  warn(error, msg) {
+  warn(error: unknown, msg: string) {
     pinoLogger.warn(addLoggerParams(), msg, error);
   },
 };

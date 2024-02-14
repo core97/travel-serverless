@@ -1,7 +1,7 @@
-import { HttpStatus } from './http-status.helper';
+import { HttpStatus } from '@/core/helpers/http/http-status.helper';
 
 export const httpReponse = {
-  jsonResponse(code, message) {
+  jsonResponse(code: HttpStatus, message?: string | Record<string, unknown>) {
     if (message) {
       return new Response(
         JSON.stringify(typeof message === 'string' ? { message } : message),
@@ -15,7 +15,7 @@ export const httpReponse = {
     return new Response(null, { status: code });
   },
 
-  ok(dto) {
+  ok<T>(dto?: T) {
     if (dto) {
       return new Response(JSON.stringify(dto), {
         status: HttpStatus.OK,
@@ -30,39 +30,39 @@ export const httpReponse = {
     return new Response(null, { status: HttpStatus.CREATED });
   },
 
-  clientError(message) {
+  clientError(message?: string) {
     return this.jsonResponse(HttpStatus.BAD_REQUEST, message);
   },
 
-  unauthorized(message) {
+  unauthorized(message?: string) {
     return this.jsonResponse(HttpStatus.UNAUTHORIZATED, message);
   },
 
-  forbidden(message) {
+  forbidden(message?: string) {
     return this.jsonResponse(HttpStatus.FORBIDDEN, message);
   },
 
-  notFound(message) {
+  notFound(message?: string) {
     return this.jsonResponse(HttpStatus.NOT_FOUND, message);
   },
 
-  conflict(message) {
+  conflict(message?: string) {
     return this.jsonResponse(HttpStatus.CONFLICT, message);
   },
 
-  notAcceptable(message) {
+  notAcceptable(message?: string) {
     return this.jsonResponse(HttpStatus.NOT_ACCEPTABLE, message);
   },
 
-  invalidParams(message) {
+  invalidParams(message?: string) {
     return this.jsonResponse(HttpStatus.UNPROCESSABLE_ENTITY, message);
   },
 
-  contentTooLarge(message) {
+  contentTooLarge(message?: string) {
     return this.jsonResponse(HttpStatus.CONTENT_TOO_LARGE, message);
   },
 
-  fail(error) {
+  fail(error?: unknown) {
     const body = error ? JSON.stringify({ message: error?.toString() }) : null;
 
     return new Response(body, { status: HttpStatus.INTERNAL_ERROR });

@@ -7,6 +7,7 @@
   "scripts": {
     "deploy:cloud": "sls deploy --aws-profile juan",
     "dev": "sls offline start --aws-profile juan",
+    "build": "tsc --build",
     "prisma:update:schema": "prisma db push",
     "remove:cloud": "sls remove",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -16,12 +17,16 @@
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^5.9.1",
+    "aws-lambda": "^1.0.7",
     "pino": "^8.18.0"
   },
   "devDependencies": {
+    "@types/aws-lambda": "^8.10.133",
+    "@types/node": "^20.11.17",
     "pino-pretty": "^10.3.1",
     "prisma": "^5.9.1",
     "serverless": "^3.38.0",
-    "serverless-offline": "^13.3.3"
+    "serverless-offline": "^13.3.3",
+    "typescript": "^5.3.3"
   }
 }
