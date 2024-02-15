@@ -1,50 +1,85 @@
-import { Callback } from 'aws-lambda';
+import {
+  APIGatewayProxyEvent,
+  APIGatewayProxyResult,
+  APIGatewayProxyCallback,
+} from 'aws-lambda';
 import { logger } from '@/core/application/logger';
 import { AppError } from '@/core/application/errors/app-error';
 import { httpReponse } from '@/core/helpers/http/http-response.helper';
 import { ERROR_CODE_TO_HTTP_STATUS } from '@/core/helpers/http/http-errors.helper';
-import { HttpEvent, HttpResponse } from '@/core/types/http-event.type';
 
-export function parseHttpEventToRequest(event: HttpEvent) {
+export function parseHttpEventToRequest(event: APIGatewayProxyEvent): Request {
   const {
-    rawPath,
-    rawQueryString,
-    requestContext: { http },
-    headers,
+    path,
+    queryStringParameters,
+    multiValueQueryStringParameters,
+    httpMethod,
+    requestContext,
     body,
     isBase64Encoded,
   } = event;
 
-  const url = new URL(`https://${process.env.DOMAIN}${rawPath}`);
+  const headers = new Headers();
 
-  if (rawQueryString) {
-    url.search = rawQueryString;
+  Object.entries(event.headers).forEach(([key, value]) => {
+    if (value) {
+      headers.append(key, value);
+    }
+  });
+
+  const url = new URL(`https://${requestContext.domainName}${path}`);
+
+  let rawQueryString = '';
+  let rawMultiQueryString = '';
+
+  if (queryStringParameters) {
+    Object.entries(queryStringParameters).forEach(([key, value]) => {
+      if (value) {
+        rawQueryString += `&${key}=${value}`;
+      }
+    });
   }
 
-  const options = {
-    method: http.method,
+  if (multiValueQueryStringParameters) {
+    Object.entries(multiValueQueryStringParameters).forEach(([key, value]) => {
+      if (Array.isArray(value) && value.length) {
+        value.forEach((item) => {
+          rawMultiQueryString += `&${key}=${item}`;
+        });
+      }
+    });
+  }
+
+  if (rawQueryString || rawMultiQueryString) {
+    url.search = '?';
+
+    if (rawQueryString) {
+      url.search += rawQueryString;
+    }
+
+    if (rawMultiQueryString) {
+      url.search += rawMultiQueryString;
+    }
+  }
+
+  return new Request(url, {
+    method: httpMethod,
     headers,
-    body: isBase64Encoded ? Buffer.from(body, 'base64').toString() : body,
-  };
-
-  if (
-    http.method === 'POST' &&
-    headers['Content-Type'] === 'application/x-www-form-urlencoded'
-  ) {
-    options.body = new URLSearchParams(rawQueryString);
-  }
-
-  return new Request(url, options);
+    ...(body && {
+      body: isBase64Encoded ? Buffer.from(body, 'base64').toString() : body,
+    }),
+  });
 }
 
 export async function parseToLambdaResponse(
   res: Response,
   options?: { isBase64Encoded?: boolean }
-) {
-  const lambdaRes: HttpResponse = {
+): Promise<APIGatewayProxyResult> {
+  const lambdaRes: APIGatewayProxyResult = {
     isBase64Encoded: options?.isBase64Encoded,
     statusCode: res.status,
     headers: {},
+    body: '',
   };
 
   res.headers.forEach((value, name) => {
@@ -57,12 +92,10 @@ export async function parseToLambdaResponse(
   });
 
   try {
-    const body = await res.text();
-
-    lambdaRes.body = typeof body === 'object' ? JSON.stringify(body) : body;
+    lambdaRes.body = await res.text();
 
     if (lambdaRes.isBase64Encoded) {
-      lambdaRes.body = Buffer.from(body).toString('base64');
+      lambdaRes.body = Buffer.from(lambdaRes.body).toString('base64');
     }
   } catch (error) {
     // Response has no body
@@ -72,9 +105,9 @@ export async function parseToLambdaResponse(
 }
 
 export async function serverlessHttpCtrl(
-  event: HttpEvent,
+  event: APIGatewayProxyEvent,
   callback: (res: Request) => Promise<Response>,
-  serverlessCallback: Callback<HttpResponse>
+  serverlessCallback: APIGatewayProxyCallback
 ) {
   try {
     logger.info(`Starting request`);

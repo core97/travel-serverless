@@ -1,29 +1,39 @@
 service: travel-project
 
+provider:
+  name: aws
+  region: eu-west-1
+  runtime: nodejs20.x
+  lambdaHashingVersion: 20201221
+  httpApi:
+    payload: "1.0"
+    disableDefaultEndpoint: false
+  environment:
+    DATABASE_URL: ${ssm:/DATABASE_URL}
+    NODE_OPTIONS: "--enable-source-maps"
+
 package:
   individually: true
+  excludeDevDependencies: true
   exclude:
     - "node_modules/**"
     - "prisma/**"
     - "package.json"
     - "package-lock.json"
 
-provider:
-  name: aws
-  region: eu-west-1
-  runtime: nodejs18.x
-  httpApi:
-    payload: "2.0"
-    disableDefaultEndpoint: false
-  environment:
-    DATABASE_URL: ${ssm:/DATABASE_URL}
-
 plugins:
+  - serverless-esbuild
   - serverless-offline
 
 custom:
   serverless-offline:
     httpPort: 3000
+  esbuild:
+    bundle: true
+    minify: true
+    sourcemap: true
+    watch:
+      pattern: "src/**/*.ts"
 
 functions:
   planCategoryCreation:

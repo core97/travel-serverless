@@ -2,7 +2,6 @@
   "name": "travel-serverless",
   "version": "1.0.0",
   "description": "",
-  "type": "module",
   "main": "index.js",
   "scripts": {
     "deploy:cloud": "sls deploy --aws-profile juan",
@@ -17,16 +16,19 @@
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^5.9.1",
-    "aws-lambda": "^1.0.7",
     "pino": "^8.18.0"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.133",
     "@types/node": "^20.11.17",
+    "@types/source-map-support": "^0.5.10",
+    "esbuild": "^0.20.0",
     "pino-pretty": "^10.3.1",
     "prisma": "^5.9.1",
     "serverless": "^3.38.0",
+    "serverless-esbuild": "^1.51.0",
     "serverless-offline": "^13.3.3",
+    "serverless-plugin-typescript": "^2.1.5",
     "typescript": "^5.3.3"
   }
 }
