@@ -2,13 +2,6 @@ import { pino } from 'pino';
 import { appContext } from '@/core/application/app-context';
 
 const pinoLogger = pino({
-  transport: {
-    target: 'pino-pretty',
-    options: {
-      colorize: true,
-      messageKey: 'message',
-    },
-  },
   messageKey: 'message',
   timestamp: pino.stdTimeFunctions.isoTime,
 });

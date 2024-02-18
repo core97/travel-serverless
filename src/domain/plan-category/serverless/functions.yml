@@ -1,0 +1,6 @@
+planCategoryCreation:
+  handler: src/domain/plan-category/serverless/handler.createPlanCategoryFn
+  events:
+    - http:
+        path: plan-category
+        method: POST

@@ -4,7 +4,8 @@ provider:
   name: aws
   region: eu-west-1
   runtime: nodejs20.x
-  lambdaHashingVersion: 20201221
+  architecture: x86_64
+  timeout: 15
   httpApi:
     payload: "1.0"
     disableDefaultEndpoint: false
@@ -15,11 +16,15 @@ provider:
 package:
   individually: true
   excludeDevDependencies: true
-  exclude:
+  patterns:
+    - "src/domain/*/serverless/handler"
     - "node_modules/**"
-    - "prisma/**"
-    - "package.json"
-    - "package-lock.json"
+    - "node_modules/prisma/**"
+    - "node_modules/@prisma/**"
+    - "!node_modules/.prisma/client/libquery_engine-*"
+    - "node_modules/.prisma/client/libquery_engine-rhel-*"
+    - "!node_modules/prisma/libquery_engine-*"
+    - "!node_modules/@prisma/engines/**"
 
 plugins:
   - serverless-esbuild
@@ -36,9 +41,4 @@ custom:
       pattern: "src/**/*.ts"
 
 functions:
-  planCategoryCreation:
-    handler: src/domain/plan-category/serverless/handler.createPlanCategoryFn
-    events:
-      - http:
-          path: plan-category
-          method: POST
+  - ${file(./src/domain/plan-category/serverless/functions.yml)}

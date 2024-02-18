@@ -8,7 +8,7 @@
     "dev": "sls offline start --aws-profile juan",
     "build": "tsc --build",
     "prisma:update:schema": "prisma db push",
-    "remove:cloud": "sls remove",
+    "remove:cloud": "sls remove --aws-profile juan",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -23,7 +23,6 @@
     "@types/node": "^20.11.17",
     "@types/source-map-support": "^0.5.10",
     "esbuild": "^0.20.0",
-    "pino-pretty": "^10.3.1",
     "prisma": "^5.9.1",
     "serverless": "^3.38.0",
     "serverless-esbuild": "^1.51.0",
