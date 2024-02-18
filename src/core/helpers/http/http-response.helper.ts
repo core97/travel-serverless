@@ -1,70 +1,110 @@
 import { HttpStatus } from '@/core/helpers/http/http-status.helper';
 
-export const httpReponse = {
-  jsonResponse(code: HttpStatus, message?: string | Record<string, unknown>) {
-    if (message) {
-      return new Response(
-        JSON.stringify(typeof message === 'string' ? { message } : message),
-        {
-          status: code,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      );
-    }
+export class HttpResponse {
+  readonly headers: Headers;
 
-    return new Response(null, { status: code });
-  },
+  readonly body?: string | Record<string, unknown> | boolean | number | null;
 
-  ok<T>(dto?: T) {
+  constructor() {
+    this.headers = new Headers();
+  }
+
+  ok<T>(dto?: T): Response {
     if (dto) {
-      return new Response(JSON.stringify(dto), {
-        status: HttpStatus.OK,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return this.transformToResponse(HttpStatus.OK, { body: dto });
     }
 
-    return new Response(null, { status: HttpStatus.OK });
-  },
+    return this.transformToResponse(HttpStatus.OK);
+  }
 
-  created() {
-    return new Response(null, { status: HttpStatus.CREATED });
-  },
+  created(): Response {
+    return this.transformToResponse(HttpStatus.CREATED);
+  }
 
-  clientError(message?: string) {
-    return this.jsonResponse(HttpStatus.BAD_REQUEST, message);
-  },
+  clientError(message?: string): Response {
+    return this.transformToResponse(HttpStatus.BAD_REQUEST, { body: message });
+  }
 
-  unauthorized(message?: string) {
-    return this.jsonResponse(HttpStatus.UNAUTHORIZATED, message);
-  },
+  unauthorized(message?: string): Response {
+    return this.transformToResponse(HttpStatus.UNAUTHORIZATED, {
+      body: message,
+    });
+  }
 
-  forbidden(message?: string) {
-    return this.jsonResponse(HttpStatus.FORBIDDEN, message);
-  },
+  forbidden(message?: string): Response {
+    return this.transformToResponse(HttpStatus.FORBIDDEN, { body: message });
+  }
 
-  notFound(message?: string) {
-    return this.jsonResponse(HttpStatus.NOT_FOUND, message);
-  },
+  notFound(message?: string): Response {
+    return this.transformToResponse(HttpStatus.NOT_FOUND, { body: message });
+  }
 
-  conflict(message?: string) {
-    return this.jsonResponse(HttpStatus.CONFLICT, message);
-  },
+  conflict(message?: string): Response {
+    return this.transformToResponse(HttpStatus.CONFLICT, { body: message });
+  }
 
-  notAcceptable(message?: string) {
-    return this.jsonResponse(HttpStatus.NOT_ACCEPTABLE, message);
-  },
+  notAcceptable(message?: string): Response {
+    return this.transformToResponse(HttpStatus.NOT_ACCEPTABLE, {
+      body: message,
+    });
+  }
 
-  invalidParams(message?: string) {
-    return this.jsonResponse(HttpStatus.UNPROCESSABLE_ENTITY, message);
-  },
+  invalidParams(message?: string): Response {
+    return this.transformToResponse(HttpStatus.UNPROCESSABLE_ENTITY, {
+      body: message,
+    });
+  }
 
-  contentTooLarge(message?: string) {
-    return this.jsonResponse(HttpStatus.CONTENT_TOO_LARGE, message);
-  },
+  contentTooLarge(message?: string): Response {
+    return this.transformToResponse(HttpStatus.CONTENT_TOO_LARGE, {
+      body: message,
+    });
+  }
 
-  fail(error?: unknown) {
-    const body = error ? JSON.stringify({ message: error?.toString() }) : null;
+  fail(message?: unknown): Response {
+    let body: string | null = null;
 
-    return new Response(body, { status: HttpStatus.INTERNAL_ERROR });
-  },
-};
+    if (message instanceof Error) {
+      body = message.message;
+    } else if (typeof message === 'string') {
+      body = message;
+    }
+
+    return this.transformToResponse(HttpStatus.INTERNAL_ERROR, { body });
+  }
+
+  transformToResponse<T extends HttpResponse['body']>(
+    code: HttpStatus,
+    options?: { body?: T }
+  ): Response {
+    const headersParsed: Record<string, string> = {};
+
+    this.headers.forEach((value, key) => {
+      headersParsed[key] = value;
+    });
+
+    return new Response(this.parseBody(options?.body), {
+      headers: {
+        ...headersParsed,
+        ...(typeof options?.body === 'object' && {
+          'Content-Type': 'application/json',
+        }),
+      },
+      status: code,
+    });
+  }
+
+  private parseBody(body?: HttpResponse['body']): BodyInit | null {
+    if (typeof body === 'string') {
+      return body;
+    } else if (typeof body === 'object') {
+      return JSON.stringify(body);
+    } else if (typeof body === 'boolean') {
+      return `${body}`;
+    } else if (typeof body === 'number') {
+      return body.toString();
+    }
+
+    return null;
+  }
+}

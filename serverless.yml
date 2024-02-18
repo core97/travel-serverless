@@ -18,7 +18,6 @@ package:
   excludeDevDependencies: true
   patterns:
     - "src/domain/*/serverless/handler"
-    - "node_modules/**"
     - "node_modules/prisma/**"
     - "node_modules/@prisma/**"
     - "!node_modules/.prisma/client/libquery_engine-*"

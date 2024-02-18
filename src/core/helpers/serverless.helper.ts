@@ -1,12 +1,4 @@
-import {
-  APIGatewayProxyEvent,
-  APIGatewayProxyResult,
-  APIGatewayProxyCallback,
-} from 'aws-lambda';
-import { logger } from '@/core/application/logger';
-import { AppError } from '@/core/application/errors/app-error';
-import { httpReponse } from '@/core/helpers/http/http-response.helper';
-import { ERROR_CODE_TO_HTTP_STATUS } from '@/core/helpers/http/http-errors.helper';
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 export function parseHttpEventToRequest(event: APIGatewayProxyEvent): Request {
   const {
@@ -102,39 +94,4 @@ export async function parseToLambdaResponse(
   }
 
   return lambdaRes;
-}
-
-export async function serverlessHttpCtrl(
-  event: APIGatewayProxyEvent,
-  callback: (res: Request) => Promise<Response>,
-  serverlessCallback: APIGatewayProxyCallback
-) {
-  try {
-    logger.info(`Starting request`);
-
-    const res = await callback(parseHttpEventToRequest(event));
-
-    logger.info(`Request completed`);
-
-    const serverlessRes = await parseToLambdaResponse(res);
-
-    serverlessCallback(null, serverlessRes);
-  } catch (error) {
-    logger.error(error, `Request error`);
-
-    let errorRes = httpReponse.fail();
-
-    if (error instanceof AppError) {
-      const httpStatus = ERROR_CODE_TO_HTTP_STATUS[error.httpCode];
-
-      errorRes = httpReponse.jsonResponse(httpStatus, {
-        businessCode: error.businessCode,
-        httpCode: error.httpCode,
-      });
-    }
-
-    const serverlessRes = await parseToLambdaResponse(errorRes);
-
-    serverlessCallback(error instanceof Error ? error : null, serverlessRes);
-  }
 }

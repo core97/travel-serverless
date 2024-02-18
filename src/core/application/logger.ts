@@ -3,6 +3,12 @@ import { appContext } from '@/core/application/app-context';
 
 const pinoLogger = pino({
   messageKey: 'message',
+  formatters: {
+    level(label) {
+      return { level: label };
+    },
+  },
+  base: undefined,
   timestamp: pino.stdTimeFunctions.isoTime,
 });
 
